@@ -16,11 +16,11 @@ class Checkers():
         if board[row][col] == self:
             self.row = row
             self.col = col
-            print("valid")
+            print("valid selection of piece")
         else: 
             print("Invalid Selection")
     
-    def legalMoves(self, board):
+    def moveAxisQuantifier(self, board):
         if isinstance(board[self.row][self.col], Checkers):
             x_axis = 0
             y_axis = 0
@@ -29,12 +29,46 @@ class Checkers():
                     x_axis += 1
                 if isinstance(board[i][self.col], Checkers):
                     y_axis += 1
-            return (x_axis, y_axis)
+            
+            #Calculate Diagonal LeftUp to RightDown maximun movement
+            j = self.row
+            k = self.col
+            while k != 0 and j != 0:
+                j -= 1
+                k -= 1
+
+            if k == 0:
+                diagCal = j
+            else: diagCal = k
+            
+            diagonalLeftUp = 0
+            for i in range(8 - diagCal):
+                if isinstance(board[j][k], Checkers):
+                    diagonalLeftUp += 1
+                j += 1
+                k += 1
+
+            #Calculate Diagonal LeftDown to RightUp maximun movement
+            j = self.row
+            k = self.col
+            while k != 0:
+                k -= 1
+                j += 1
+            
+            diagonalRightDown = 0
+            for i in range(j+1):
+                if isinstance(board[j][k], Checkers):
+                    diagonalRightDown += 1
+                j -= 1
+                k += 1
+
+                
+            return [x_axis, y_axis, diagonalLeftUp, diagonalRightDown]
 
         else:
             print("Please, Select a piece")
 
-    def move(self, board, next_row, next_col):
+    def move(self, board, next_row, next_col): 
             """Callback function for movePiece"""
             if isinstance(board[next_row][next_col], Checkers) and board[next_row][next_col].color != self.color:
                 board[next_row][next_col] = board[self.row][self.col]
@@ -51,14 +85,27 @@ class Checkers():
                 #change turn
     
     def movePiece(self, board, next_row, next_col):
-        legal_options = self.legalMoves(board)
-        if (next_row == self.row and abs(next_col - self.col) <= legal_options[0]):
+        legal_options = self.moveAxisQuantifier(board)
+        squaresAway = abs(next_row - self.row)+abs(next_col - self.col)
+        #Vertical Move
+        if (next_row == self.row and squaresAway <= legal_options[0]):
             self.move(board, next_row, next_col)
 
-        if (next_col == self.col and abs(next_row - self.row) <= legal_options[1]):
+        #Horizontal Move
+        if (next_col == self.col and squaresAway <= legal_options[1]):
             self.move(board, next_row, next_col)
-        else: print("Illegal Move, try a legal one")
         
+        #Diagonal Move
+        if (next_col != self.col and next_row != self.row):
+            squaresAway = squaresAway / 2
+
+        
+            self.move(board, next_row, next_col)
+
+        
+
+        else: print("Illegal Move, try a legal one")
+          
            
 
 
@@ -78,12 +125,14 @@ def main():
         board[i+1][0] = plyr_2
         board[i+1][-1] = plyr_2  
 
-    plyr_1.selectPiece(board,0,2)
+    plyr_2.selectPiece(board,1,0)
 
     for row in board:
         print(row)
 
-    plyr_1.movePiece(board,0,2)
+    plyr_2.movePiece(board,4,3)
+ 
+
 
 
     for row in board:
