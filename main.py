@@ -20,21 +20,46 @@ class Checkers():
         else: 
             print("Invalid Selection")
     
-    def movePiece(self, board, next_row, next_col):
-        checkPossible = True
+    def legalMoves(self, board):
+        if isinstance(board[self.row][self.col], Checkers):
+            x_axis = 0
+            y_axis = 0
+            for i in range(8):
+                if isinstance(board[self.row][i], Checkers):
+                    x_axis += 1
+                if isinstance(board[i][self.col], Checkers):
+                    y_axis += 1
+            return (x_axis, y_axis)
 
+        else:
+            print("Please, Select a piece")
 
-
-        if checkPossible == True:
+    def move(self, board, next_row, next_col):
+            """Callback function for movePiece"""
             if isinstance(board[next_row][next_col], Checkers) and board[next_row][next_col].color != self.color:
                 board[next_row][next_col] = board[self.row][self.col]
                 board[self.row][self.col] = ""
-                print("what")
+                print("Enemy Piece captured")
+                #change turn
 
             elif isinstance(board[next_row][next_col], Checkers) and board[next_row][next_col].color == self.color:
-                print("Invalid Move")
+                print("Illegal Move, capturing own piece, try a legal move")
+                #dont change turn
             else:
                 board[next_row][next_col], board[self.row][self.col] = board[self.row][self.col], board[next_row][next_col] #swaps positions
+                print("Piece Succesfully moved")
+                #change turn
+    
+    def movePiece(self, board, next_row, next_col):
+        legal_options = self.legalMoves(board)
+        if (next_row == self.row and abs(next_col - self.col) <= legal_options[0]):
+            self.move(board, next_row, next_col)
+
+        if (next_col == self.col and abs(next_row - self.row) <= legal_options[1]):
+            self.move(board, next_row, next_col)
+        else: print("Illegal Move, try a legal one")
+        
+           
 
 
 
@@ -54,11 +79,11 @@ def main():
         board[i+1][-1] = plyr_2  
 
     plyr_1.selectPiece(board,0,2)
-    plyr_2.selectPiece(board,0,2)
+
     for row in board:
         print(row)
 
-    plyr_1.movePiece(board,2,5)
+    plyr_1.movePiece(board,0,2)
 
 
     for row in board:
